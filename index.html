@@ -21,11 +21,12 @@ h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{c
 .search{width:100%;padding:11px 12px;background:#0b1524;border:1px solid #30425b;border-radius:9px;color:white;outline:none}
 .parts{overflow:auto;max-height:calc(100vh - 430px);display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-right:3px}
 .part{font-size:12px;text-align:left;padding:9px;background:#0c1727;border:1px solid #263950;border-radius:8px;color:#dbe6f5}.part small{display:block;color:#91a5bf;margin-top:3px;font-size:10px}.part.active{border-color:var(--gold);background:#352a19}
-.footer{border-top:1px solid var(--line);padding-top:10px;color:#7f92ab;font-size:11px;line-height:1.6}
+.footer{border-top:1px solid var(--line);padding-top:10px;color:#7f92ab;font-size:11px;line-height:1.6}.tool-library{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:9px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tool-card{font-size:11px;text-align:left;padding:9px;background:#0c1727;border:1px solid #263950;border-radius:8px;color:#dbe6f5}.tool-card small{display:block;color:#91a5bf;margin-top:3px}.tool-card.active{border-color:var(--gold);background:#352a19}.tool-info{padding:10px;border:1px solid #34465f;border-radius:9px;background:#0b1524;font-size:12px;line-height:1.6;color:#d1dbea}
 @media(max-width:900px){.workshop{margin:10px;padding:12px}.workshop-controls{grid-template-columns:1fr 1fr}.machine-buttons{grid-column:1/-1}.machine-buttons button{flex:1 1 42%}.workshop-head{align-items:flex-start}main{grid-template-columns:1fr;padding:10px}.viewer{height:62vh;min-height:430px}.side{min-height:0}.parts{max-height:310px}header{padding:0 14px}.brand{font-size:14px}.actions button{padding:7px 9px;font-size:11px}}
 </style>
 </head>
 <body>
+<div class="credit-bar">Developed by <strong>Md. Mehedi Hasan</strong> <span>· Roll No. 310096 · BGPI · Mechanical Technology · Session 2025–26</span></div>
 <header><div><div class="brand">⚙ <span>LATHE</span> LAB</div><div class="sub">Interactive 3D Machine Explorer · লেদ মেশিন পরিচিতি</div></div><div class="actions"><button id="useMachineBtn" class="active" onclick="location.href='operator.html'">⚙ Use Lathe Machine</button><button id="langBtn">বাংলা / English</button><button id="resetBtn">⟲ Reset View</button></div></header>
 <section id="workshop" class="workshop" hidden><div class="workshop-head"><div><h2>USE LATHE MACHINE · মেশিন চালাও</h2><div class="muted">ওয়ার্কপিস, কাটিং এক্সারসাইজ ও চাক নিয়ন্ত্রণ করে অনুশীলন করো</div></div><span id="machineStatus" class="status">মেশিন বন্ধ</span></div><div class="workshop-controls"><label>Workpiece<select id="workpieceSelect"><option value="cylinder">Round bar · সিলিন্ডার</option><option value="step">Step turning · ধাপযুক্ত</option><option value="taper">Taper turning · কোনাকৃতি</option><option value="groove">Grooving · খাঁজ কাটা</option></select></label><label>Exercise<select id="exerciseSelect"><option value="facing">Facing · ফেসিং</option><option value="straight">Straight turning · সোজা টার্নিং</option><option value="taper">Taper turning · টেপার</option><option value="groove">Grooving · গ্রুভিং</option><option value="drill">Drilling · ড্রিলিং</option></select></label><div class="machine-buttons"><button id="startMachine">▶ Start</button><button id="stopMachine">■ Stop</button><button id="chuckBtn">🔓 Open Chuck</button><button id="fixAllBtn">↺ Fix All</button></div></div><div class="workshop-note" id="exerciseNote">Facing: ওয়ার্কপিসের সামনের পৃষ্ঠ সমান করার অনুশীলন।</div></section><main>
 <section class="viewer"><div id="stage"></div><div class="hint"><b>3D MACHINE</b><br>মেশিনের যেকোনো অংশে ক্লিক করো<br><span style="color:#8fa4bf">Drag: ঘোরাও · Scroll: Zoom</span></div><div class="toolbar"><button id="autoBtn" class="active">⟳ Auto rotate</button><button id="wireBtn">Wireframe</button><button id="homeBtn">⌂ Home</button></div></section>
@@ -33,6 +34,7 @@ h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{c
 <div class="selected" id="info"><div class="en">SELECT A COMPONENT</div><div class="bn">একটি অংশে ক্লিক করো</div><p>3D মডেলের যেকোনো অংশে ক্লিক করলে এখানে নাম ও কাজের বিবরণ দেখাবে।</p></div>
 <input class="search" id="search" placeholder="🔎 অংশ খুঁজুন / Search parts...">
 <div style="display:flex;justify-content:space-between;align-items:center"><h2>সব অংশের তালিকা</h2><span class="muted" id="count"></span></div><div class="parts" id="parts"></div>
+<div class="tool-library"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Lathe Machine Tools</h2><span class="muted">টুল নির্বাচন</span></div><div class="tool-grid" id="toolGrid"></div><div class="tool-info" id="toolInfo">একটি টুল নির্বাচন করলে এর নাম, ব্যবহার ও কাজের বিবরণ এখানে দেখা যাবে।</div></div>
 <div class="footer">শিক্ষামূলক 3D মডেল। বাস্তব মেশিনের নকশা ও মাপ মডেলভেদে ভিন্ন হতে পারে। কিছু অভ্যন্তরীণ অংশ বাহ্যিকভাবে দেখানোর জন্য আলাদা করে উপস্থাপন করা হয়েছে।</div></aside>
 </main>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
@@ -83,7 +85,16 @@ const root=new THREE.Group();scene.add(root);const pickables=[];const partsData=
 ['Spindle speed dial','স্পিন্ডল স্পিড ডায়াল','নির্বাচিত স্পিন্ডল গতি নির্দেশ বা নিয়ন্ত্রণ করে।'],
 ['Half-nut lever','হাফ-নাট লিভার','লিড স্ক্রুর সঙ্গে ক্যারেজ যুক্ত বা বিচ্ছিন্ন করে।'],
 ['Power feed lever','পাওয়ার ফিড লিভার','স্বয়ংক্রিয় লম্বালম্বি বা আড়াআড়ি ফিড চালু করে।'],
-['Back gear','ব্যাক গিয়ার','কম গতিতে বেশি টর্ক পাওয়ার গিয়ার ব্যবস্থা।']
+['Back gear','ব্যাক গিয়ার','কম গতিতে বেশি টর্ক পাওয়ার গিয়ার ব্যবস্থা।'],
+['Power ON switch','পাওয়ার অন সুইচ','মেশিনের প্রধান বিদ্যুৎ সরবরাহ চালু করার সুইচ।'],
+['Power OFF switch','পাওয়ার অফ সুইচ','স্বাভাবিকভাবে মেশিনের বিদ্যুৎ সরবরাহ বন্ধ করে।'],
+['Forward / Reverse selector','ফরওয়ার্ড-রিভার্স সিলেক্টর','স্পিন্ডলের ঘূর্ণনের দিক নির্বাচন করে; মেশিন বন্ধ করে দিক পরিবর্তন করতে হয়।'],
+['Coolant ON/OFF valve','কুল্যান্ট অন-অফ ভালভ','কাটিং এলাকায় কুল্যান্ট প্রবাহ চালু বা বন্ধ করে।'],
+['Chuck key','চাক কী','চাকের জ- শক্ত বা ঢিলা করতে ব্যবহৃত হয়; চালুর আগে অবশ্যই খুলে রাখতে হয়।'],
+['Gear selector lever','গিয়ার সিলেক্টর লিভার','প্রয়োজনীয় স্পিন্ডল স্পিড বা ফিড রেঞ্জ নির্বাচন করে।'],
+['Belt / Pulley','বেল্ট ও পুলি','মোটরের শক্তি স্পিন্ডলে পৌঁছে দেয়।'],
+['Tool holder','টুল হোল্ডার','কাটিং টুলকে সঠিক উচ্চতা ও অবস্থানে ধরে রাখে।'],
+['Chuck guard','চাক গার্ড','ঘূর্ণায়মান চাক ও ওয়ার্কপিস থেকে অপারেটরকে সুরক্ষা দেয়।']
 ];
 function box(name,pos,size,material,parent=root){const g=new THREE.Group();g.position.set(...pos);const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size),material);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);parent.add(g);register(g,name);return g}
 function cyl(name,pos,r1,r2,len,axis,material,parent=root,segments=32){const g=new THREE.Group();g.position.set(...pos);const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,len,segments),material);if(axis==='x')mesh.rotation.z=Math.PI/2;if(axis==='z')mesh.rotation.x=Math.PI/2;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);parent.add(g);register(g,name);return g}
@@ -101,10 +112,17 @@ box('Headstock',[-2.65,2.42,0],[1.45,1.05,1.25],blue);box('Headstock',[-2.65,2.9
 cyl('Spindle',[-1.85,2.48,0],.19,.19,.65,'x',steel);const chuckMain=cyl('Chuck',[-1.42,2.48,0],.53,.53,.38,'x',dark);
 const chuckFace=cyl('Chuck',[-1.21,2.48,0],.45,.45,.08,'x',steel);
 const chuckJaws=[];for(let i=0;i<3;i++){let a=i*2*Math.PI/3;let j=box('Chuck jaws',[-1.13,2.48+Math.sin(a)*.27,Math.cos(a)*.27],[.23,.14,.14],gold);j.rotation.x=a;chuckJaws.push({group:j,angle:a,baseY:2.48+Math.sin(a)*.27,baseZ:Math.cos(a)*.27})}
-const workpiece=cyl('Workpiece',[-.05,2.48,0],.17,.17,2.15,'x',mat('#c38a56',.75,.27));
+const workpiece=cyl('Workpiece',[-.18,2.48,0],.17,.17,2.55,'x',mat('#c38a56',.75,.27));
 
 // European-style conventional lathe details: control fascia, handles, labels and cast-metal covers
 const fascia=box('Headstock',[-2.66,2.18,.645],[1.12,.55,.045],dark);
+cyl('Power ON switch',[-3.18,2.05,.72],.075,.075,.07,'z',mat('#269b61',.45,.32));
+cyl('Power OFF switch',[-2.94,2.05,.72],.075,.075,.07,'z',red);
+cyl('Forward / Reverse selector',[-2.69,2.05,.72],.065,.065,.07,'z',gold);
+cyl('Coolant ON/OFF valve',[-2.43,2.05,.72],.065,.065,.07,'z',steel);
+beam('Chuck key',[-1.26,3.05,.22],[-1.26,2.82,.22],.025,black);
+cyl('Gear selector lever',[-2.25,2.35,.78],.045,.045,.22,'z',gold);
+box('Chuck guard',[-1.35,3.12,0],[.9,.06,.9],mat('#d9e1e8',.25,.55));
 box('Headstock',[-2.66,2.53,.674],[1.1,.12,.045],steel);
 for(const x of [-3.02,-2.67,-2.32]){
   cyl('Spindle speed dial',[x,2.18,.70],.105,.105,.055,'z',black);
@@ -167,6 +185,8 @@ for(let i=0;i<4;i++)box('Back gear',[-2.7+i*.12,2.9,-.68],[.04,.38,.13],steel);
 // decorative feet / small controls
 box('Feed selector',[1.05,1.72,.72],[.18,.18,.12],gold);
 const labels=partsData.map(p=>({en:p[0],bn:p[1],desc:p[2]}));
+const toolData=[['Turning Tool','টার্নিং টুল','ওয়ার্কপিসের বাইরের ব্যাস কমিয়ে সোজা সিলিন্ডার তৈরি করতে ব্যবহৃত হয়।'],['Facing Tool','ফেসিং টুল','ওয়ার্কপিসের প্রান্তের পৃষ্ঠ সমান ও সমতল করে।'],['Parting-off Tool','পার্টিং-অফ টুল','ওয়ার্কপিসকে নির্দিষ্ট স্থানে কেটে আলাদা করে।'],['Threading Tool','থ্রেডিং টুল','ওয়ার্কপিসের বাইরের বা ভেতরের থ্রেড কাটে।'],['Boring Tool','বোরিং টুল','আগে থেকে করা ছিদ্রের ব্যাস বড় ও নির্ভুল করে।'],['Drill Bit','ড্রিল বিট','টেইলস্টকে ধরে ওয়ার্কপিসের কেন্দ্রে ছিদ্র তৈরি করে।'],['Reamer','রিমার','ড্রিল করা ছিদ্রের মাপ ও পৃষ্ঠের finish উন্নত করে।'],['Knurling Tool','নার্লিং টুল','হাতল বা গ্রিপের জন্য পৃষ্ঠে ক্রস/ডায়মন্ড প্যাটার্ন তৈরি করে।'],['Chamfering Tool','চ্যামফারিং টুল','ধারালো প্রান্তে ঢালু বা বেভেল তৈরি করে।'],['Grooving Tool','গ্রুভিং টুল','ওয়ার্কপিসে সরু খাঁজ তৈরি করে।'],['Internal Threading Tool','ইন্টারনাল থ্রেডিং টুল','ছিদ্রের ভেতরে থ্রেড কাটে।'],['Form Tool','ফর্ম টুল','বিশেষ আকৃতির প্রোফাইল এক ধাপে তৈরি করতে ব্যবহৃত হয়।']];
+const toolGrid=document.querySelector('#toolGrid');toolData.forEach(t=>{const b=document.createElement('button');b.className='tool-card';b.innerHTML=t[0]+'<small>'+t[1]+'</small>';b.onclick=()=>{document.querySelectorAll('.tool-card').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector('#toolInfo').innerHTML='<b>'+t[0]+' · '+t[1]+'</b><br>'+t[2]};toolGrid.append(b)});
 let selected=null,lang='bn',wire=false;
 function selectPart(name){const d=labels.find(x=>x.en===name)||labels[0];selected=name;document.querySelector('#info').innerHTML='<div class="en">'+d.en+'</div><div class="bn">'+d.bn+'</div><p>'+d.desc+'</p>';document.querySelectorAll('.part').forEach(b=>b.classList.toggle('active',b.dataset.name===name));}
 const list=document.querySelector('#parts');function renderList(q=''){list.innerHTML='';const arr=labels.filter(d=>(d.en+' '+d.bn).toLowerCase().includes(q.toLowerCase()));document.querySelector('#count').textContent=arr.length+' / '+labels.length;arr.forEach(d=>{const b=document.createElement('button');b.className='part'+(selected===d.en?' active':'');b.dataset.name=d.en;b.innerHTML=d.en+'<small>'+d.bn+'</small>';b.onclick=()=>{selectPart(d.en);focusPart(d.en)};list.append(b)})}
@@ -175,7 +195,7 @@ renderList();document.querySelector('#search').addEventListener('input',e=>rende
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerdown',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(pickables,true);if(hits.length){let o=hits[0].object;while(o&&!o.userData.part)o=o.parent;if(o?.userData.part)selectPart(o.userData.part)}});
 document.querySelector('#autoBtn').textContent='Manual rotate: drag';document.querySelector('#autoBtn').classList.remove('active');document.querySelector('#autoBtn').onclick=()=>{controls.autoRotate=!controls.autoRotate;document.querySelector('#autoBtn').classList.toggle('active',controls.autoRotate);document.querySelector('#autoBtn').textContent=controls.autoRotate?'Auto rotate: ON':'Manual rotate: drag'};
 document.querySelector('#wireBtn').onclick=e=>{wire=!wire;scene.traverse(o=>{if(o.isMesh&&o.material&&!['floor'].includes(o.name))o.material.wireframe=wire});e.currentTarget.classList.toggle('active',wire)};
-function reset(){camera.position.set(7.8,4.4,10.8);controls.target.set(0,1.65,0);controls.update()}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
+function reset(){camera.position.set(7.8,4.4,10.8);controls.target.set(0,1.65,0);controls.update();document.querySelector('#info').innerHTML='<div class="en">MACHINE OVERVIEW</div><div class="bn">মূল 3D ভিউ</div><p>মেশিনের যেকোনো অংশে ক্লিক করে নাম ও কাজের বিবরণ দেখো।</p>';selected=null;document.querySelectorAll('.part').forEach(b=>b.classList.remove('active'))}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
 document.querySelector('#langBtn').onclick=()=>{lang=lang==='bn'?'en':'bn';document.querySelector('.hint').innerHTML='<b>3D MACHINE</b><br>'+(lang==='bn'?'মেশিনের যেকোনো অংশে ক্লিক করো':'Click any machine component')+'<br><span style="color:#8fa4bf">Drag: Orbit · Scroll: Zoom</span>';};
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}new ResizeObserver(resize).observe(stage);resize();
 let machineRunning=false,chuckOpen=false,spindleAngle=0,toolHome=cuttingTool.position.clone(),workpieceType='cylinder',exerciseType='facing';
