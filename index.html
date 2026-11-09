@@ -10,7 +10,7 @@ header{height:72px;border-bottom:1px solid var(--line);display:flex;align-items:
 .brand{font-weight:800;letter-spacing:.3px}.brand span{color:var(--gold)}.sub{font-size:12px;color:var(--muted);margin-top:3px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}button{background:#17263b;border:1px solid #34465f;color:var(--text);padding:9px 13px;border-radius:9px;cursor:pointer;font-weight:600}button:hover,button.active{border-color:var(--gold);color:var(--gold)}
 main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:16px;max-width:1600px;margin:auto}
-.viewer{position:relative;min-height:620px;height:calc(100vh - 110px);max-height:900px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#17263a,#0c1524)}
+.viewer{position:relative;min-height:620px;height:calc(100vh - 110px);max-height:900px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#f4f6f8,#dce2e7)}
 #stage{position:absolute;inset:0}#stage canvas{display:block;width:100%;height:100%}
 .hint{position:absolute;left:18px;top:16px;background:#07101dcc;border:1px solid #34465f;padding:10px 13px;border-radius:10px;color:#c7d5e8;font-size:13px;pointer-events:none}
 .hint b{color:var(--gold)}.toolbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;background:#07101dcc;padding:8px;border:1px solid #34465f;border-radius:12px}
@@ -39,15 +39,15 @@ h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{c
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
-const stage=document.querySelector('#stage'),scene=new THREE.Scene();scene.background=new THREE.Color('#111e30');
-const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(8,6.5,9);
+const stage=document.querySelector('#stage'),scene=new THREE.Scene();scene.background=new THREE.Color('#e9edf0');
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(7.8,4.4,10.8);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.3,0);controls.enableDamping=true;controls.autoRotate=true;controls.autoRotateSpeed=1.1;
-scene.add(new THREE.HemisphereLight(0xc9e2ff,0x293548,2));const key=new THREE.DirectionalLight(0xffe0ae,3.1);key.position.set(5,9,7);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0x77aaff,1.5);fill.position.set(-6,4,-5);scene.add(fill);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.65,0);controls.enableDamping=true;controls.autoRotate=true;controls.autoRotateSpeed=.65;
+scene.add(new THREE.HemisphereLight(0xffffff,0x707780,2.15));const key=new THREE.DirectionalLight(0xffffff,3.0);key.position.set(5,9,7);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0xdce7f2,1.35);fill.position.set(-6,4,-5);scene.add(fill);
 const mat=(c,m=0.35,r=.55)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});
-const blue=mat('#356b91',.65,.3),blue2=mat('#244e70',.6,.35),steel=mat('#aebbc8',.85,.25),dark=mat('#263746',.65,.38),black=mat('#101820',.35,.45),gold=mat('#e5a72d',.7,.25),red=mat('#a94a3e',.4,.4),rubber=mat('#15191e',.1,.85);
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),mat('#172638',.15,.9));floor.rotation.x=-Math.PI/2;floor.position.y=-.04;floor.receiveShadow=true;scene.add(floor);
-const grid=new THREE.GridHelper(20,40,'#31445b','#24364b');grid.position.y=-.025;scene.add(grid);
+const blue=mat('#aeb4b8',.72,.34),blue2=mat('#858d93',.68,.38),steel=mat('#d5d9dc',.88,.22),dark=mat('#555d63',.72,.42),black=mat('#20262b',.38,.48),gold=mat('#d8a92d',.62,.3),red=mat('#bd342b',.35,.4),rubber=mat('#171b1f',.1,.85);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),mat('#e7eaed',.05,.95));floor.rotation.x=-Math.PI/2;floor.position.y=-.04;floor.receiveShadow=true;scene.add(floor);
+const grid=new THREE.GridHelper(20,40,'#d6dce1','#e1e5e9');grid.position.y=-.025;scene.add(grid);
 const root=new THREE.Group();scene.add(root);const pickables=[];const partsData=[
 ['Bed','বেড','মেশিনের প্রধান ভিত্তি। Headstock, Tailstock ও Carriage বেডের গাইডওয়ের ওপর চলাচল করে।'],
 ['Headstock','হেডস্টক','বেডের বাম পাশে থাকে। এর ভেতরে স্পিন্ডল, বিয়ারিং ও গতি পরিবর্তনের গিয়ার ব্যবস্থা থাকে।'],
@@ -91,10 +91,10 @@ function register(obj,name){obj.userData.part=name;pickables.push(obj);obj.trave
 function wheel(name,pos,r,axis='x',material=steel){const g=cyl(name,pos,r,r,.09,axis,material);for(let i=0;i<8;i++){let a=i*Math.PI/4;let p=new THREE.Mesh(new THREE.BoxGeometry(.035,r*1.8,.035),material);p.position.set(Math.cos(a)*r*.5,Math.sin(a)*r*.5,0);g.add(p)}return g}
 function beam(name,a,b,thick,material){const mid=new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5),d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const mesh=new THREE.Mesh(new THREE.CylinderGeometry(thick,thick,d.length(),16),material);mesh.position.copy(mid);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());mesh.castShadow=true;root.add(mesh);register(mesh,name);return mesh}
 // Stand and chip tray
-box('Chip pan',[0,.95,0],[6.8,.16,1.9],dark);
+box('Chip pan',[0,.95,0],[6.8,.16,1.9],steel);
 for(const x of [-2.8,2.8]){box('Legs / Stand',[x,.47,0],[.5,.9,1.45],blue2);box('Legs / Stand',[x,.12,0],[.8,.15,1.7],dark)}
 // bed
-box('Bed',[0,1.65,0],[6.9,.42,1.05],blue);box('Bed ways',[0,1.9,.32],[6.7,.09,.18],steel);box('Bed ways',[0,1.9,-.32],[6.7,.09,.18],steel);
+box('Bed',[0,1.65,0],[6.9,.42,1.05],dark);box('Bed ways',[0,1.9,.32],[6.7,.09,.18],steel);box('Bed ways',[0,1.9,-.32],[6.7,.09,.18],steel);
 box('Bed ways',[0,1.92,0],[6.5,.06,.1],dark);
 // Headstock
 box('Headstock',[-2.65,2.42,0],[1.45,1.05,1.25],blue);box('Headstock',[-2.65,2.96,0],[1.35,.12,1.2],blue2);
@@ -102,6 +102,47 @@ cyl('Spindle',[-1.85,2.48,0],.19,.19,.65,'x',steel);cyl('Chuck',[-1.42,2.48,0],.
 cyl('Chuck',[-1.21,2.48,0],.45,.45,.08,'x',steel);
 for(let i=0;i<3;i++){let a=i*2*Math.PI/3;let j=box('Chuck jaws',[-1.13,2.48+Math.sin(a)*.27,Math.cos(a)*.27],[.23,.14,.14],gold);j.rotation.x=a}
 cyl('Workpiece',[-.05,2.48,0],.17,.17,2.15,'x',mat('#c38a56',.75,.27));
+
+// European-style conventional lathe details: control fascia, handles, labels and cast-metal covers
+const fascia=box('Headstock',[-2.66,2.18,.645],[1.12,.55,.045],dark);
+box('Headstock',[-2.66,2.53,.674],[1.1,.12,.045],steel);
+for(const x of [-3.02,-2.67,-2.32]){
+  cyl('Spindle speed dial',[x,2.18,.70],.105,.105,.055,'z',black);
+  cyl('Spindle speed dial',[x,2.18,.735],.067,.067,.025,'z',gold);
+  cyl('Spindle speed dial',[x,2.18,.755],.025,.025,.012,'z',steel);
+}
+for(let i=0;i<3;i++){
+  const x=-3.04+i*.34;
+  box('Feed selector',[x,2.61,.69],[.22,.12,.035],black);
+  box('Feed selector',[x,2.61,.713],[.15,.065,.018],i===1?gold:steel);
+}
+box('Emergency stop',[-3.15,2.92,.42],[.18,.18,.16],black);
+cyl('Emergency stop',[-3.15,2.92,.52],.085,.085,.07,'z',red);
+box('Headstock',[-2.65,1.92,.72],[1.22,.08,.09],steel);
+for(const x of [-3.12,-2.18]){
+  cyl('Headstock',[x,2.42,.68],.055,.055,.12,'z',black);
+  cyl('Headstock',[x,2.42,.75],.035,.035,.035,'z',gold);
+}
+// Bed apron and carriage hand controls
+box('Apron',[.15,1.48,.76],[.98,.55,.18],blue2);
+cyl('Apron',[-.05,1.53,.88],.13,.13,.035,'z',black);
+cyl('Apron',[.30,1.53,.88],.13,.13,.035,'z',black);
+for(const x of [-.05,.30]){
+  cyl('Apron',[x,1.53,.91],.07,.07,.025,'z',steel);
+}
+beam('Power feed lever',[-.28,1.55,.91],[-.18,1.86,.91],.025,black);
+cyl('Power feed lever',[-.18,1.87,.91],.045,.045,.10,'z',black);
+// Cast iron stand access panels and feet
+for(const x of [-2.8,2.8]){
+  box('Legs / Stand',[x,.48,.74],[.36,.65,.035],blue2);
+  box('Legs / Stand',[x,.46,.765],[.27,.48,.018],steel);
+  cyl('Legs / Stand',[x,.18,.80],.055,.055,.03,'z',black);
+}
+// Tailstock locking lever and compound clamp
+beam('Tailstock handwheel',[2.77,2.67,.42],[3.05,2.84,.42],.035,black);
+cyl('Tailstock handwheel',[3.06,2.84,.42],.055,.055,.12,'x',black);
+box('Tool post',[.15,2.58,.16],[.22,.09,.24],black);
+
 // gearbox front
 box('Quick-change gearbox',[-2.65,1.83,.68],[1.18,.65,.18],blue2);wheel('Feed selector',[-2.88,1.82,.82],.12,'z',gold);wheel('Feed selector',[-2.45,1.82,.82],.12,'z',steel);
 // tailstock
@@ -134,7 +175,7 @@ renderList();document.querySelector('#search').addEventListener('input',e=>rende
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerdown',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(pickables,true);if(hits.length){let o=hits[0].object;while(o&&!o.userData.part)o=o.parent;if(o?.userData.part)selectPart(o.userData.part)}});
 document.querySelector('#autoBtn').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.classList.toggle('active',controls.autoRotate)};
 document.querySelector('#wireBtn').onclick=e=>{wire=!wire;scene.traverse(o=>{if(o.isMesh&&o.material&&!['floor'].includes(o.name))o.material.wireframe=wire});e.currentTarget.classList.toggle('active',wire)};
-function reset(){camera.position.set(8,6.5,9);controls.target.set(0,1.3,0);controls.update()}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
+function reset(){camera.position.set(7.8,4.4,10.8);controls.target.set(0,1.65,0);controls.update()}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
 document.querySelector('#langBtn').onclick=()=>{lang=lang==='bn'?'en':'bn';document.querySelector('.hint').innerHTML='<b>3D MACHINE</b><br>'+(lang==='bn'?'মেশিনের যেকোনো অংশে ক্লিক করো':'Click any machine component')+'<br><span style="color:#8fa4bf">Drag: Orbit · Scroll: Zoom</span>';};
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}new ResizeObserver(resize).observe(stage);resize();
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
