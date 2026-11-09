@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive 3D Lathe Machine | লেদ মেশিন</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2e;--line:#26364d;--gold:#f4b942;--muted:#9aabc2;--text:#edf4ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1b3150,#0b1220 60%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,"Noto Sans Bengali",sans-serif}
+header{height:72px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0b1220d9}
+.brand{font-weight:800;letter-spacing:.3px}.brand span{color:var(--gold)}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}button{background:#17263b;border:1px solid #34465f;color:var(--text);padding:9px 13px;border-radius:9px;cursor:pointer;font-weight:600}button:hover,button.active{border-color:var(--gold);color:var(--gold)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:16px;max-width:1600px;margin:auto}
+.viewer{position:relative;min-height:620px;height:calc(100vh - 110px);max-height:900px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(145deg,#17263a,#0c1524)}
+#stage{position:absolute;inset:0}#stage canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:18px;top:16px;background:#07101dcc;border:1px solid #34465f;padding:10px 13px;border-radius:10px;color:#c7d5e8;font-size:13px;pointer-events:none}
+.hint b{color:var(--gold)}.toolbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;background:#07101dcc;padding:8px;border:1px solid #34465f;border-radius:12px}
+.side{background:#111c2e;border:1px solid var(--line);border-radius:16px;padding:17px;min-height:620px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{color:var(--muted);font-size:12px;line-height:1.6}
+.selected{border:1px solid #b78329;background:linear-gradient(135deg,#392b16,#1a2432);padding:15px;border-radius:12px;min-height:130px}
+.selected .en{font-size:12px;color:#f5c96e;letter-spacing:.8px;text-transform:uppercase}.selected .bn{font-size:22px;font-weight:800;margin:7px 0}.selected p{font-size:13px;color:#d1dbea;line-height:1.6;margin:0}
+.search{width:100%;padding:11px 12px;background:#0b1524;border:1px solid #30425b;border-radius:9px;color:white;outline:none}
+.parts{overflow:auto;max-height:calc(100vh - 430px);display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-right:3px}
+.part{font-size:12px;text-align:left;padding:9px;background:#0c1727;border:1px solid #263950;border-radius:8px;color:#dbe6f5}.part small{display:block;color:#91a5bf;margin-top:3px;font-size:10px}.part.active{border-color:var(--gold);background:#352a19}
+.footer{border-top:1px solid var(--line);padding-top:10px;color:#7f92ab;font-size:11px;line-height:1.6}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:10px}.viewer{height:62vh;min-height:430px}.side{min-height:0}.parts{max-height:310px}header{padding:0 14px}.brand{font-size:14px}.actions button{padding:7px 9px;font-size:11px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">⚙ <span>LATHE</span> LAB</div><div class="sub">Interactive 3D Machine Explorer · লেদ মেশিন পরিচিতি</div></div><div class="actions"><button id="langBtn">বাংলা / English</button><button id="resetBtn">⟲ Reset View</button></div></header>
+<main>
+<section class="viewer"><div id="stage"></div><div class="hint"><b>3D MACHINE</b><br>মেশিনের যেকোনো অংশে ক্লিক করো<br><span style="color:#8fa4bf">Drag: ঘোরাও · Scroll: Zoom</span></div><div class="toolbar"><button id="autoBtn" class="active">⟳ Auto rotate</button><button id="wireBtn">Wireframe</button><button id="homeBtn">⌂ Home</button></div></section>
+<aside class="side"><div><h1>Machine Components</h1><div class="muted">একটি অংশ নির্বাচন করো অথবা নিচের তালিকা থেকে ক্লিক করো।</div></div>
+<div class="selected" id="info"><div class="en">SELECT A COMPONENT</div><div class="bn">একটি অংশে ক্লিক করো</div><p>3D মডেলের যেকোনো অংশে ক্লিক করলে এখানে নাম ও কাজের বিবরণ দেখাবে।</p></div>
+<input class="search" id="search" placeholder="🔎 অংশ খুঁজুন / Search parts...">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2>সব অংশের তালিকা</h2><span class="muted" id="count"></span></div><div class="parts" id="parts"></div>
+<div class="footer">শিক্ষামূলক 3D মডেল। বাস্তব মেশিনের নকশা ও মাপ মডেলভেদে ভিন্ন হতে পারে। কিছু অভ্যন্তরীণ অংশ বাহ্যিকভাবে দেখানোর জন্য আলাদা করে উপস্থাপন করা হয়েছে।</div></aside>
+</main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+const stage=document.querySelector('#stage'),scene=new THREE.Scene();scene.background=new THREE.Color('#111e30');
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(8,6.5,9);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.3,0);controls.enableDamping=true;controls.autoRotate=true;controls.autoRotateSpeed=1.1;
+scene.add(new THREE.HemisphereLight(0xc9e2ff,0x293548,2));const key=new THREE.DirectionalLight(0xffe0ae,3.1);key.position.set(5,9,7);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0x77aaff,1.5);fill.position.set(-6,4,-5);scene.add(fill);
+const mat=(c,m=0.35,r=.55)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});
+const blue=mat('#356b91',.65,.3),blue2=mat('#244e70',.6,.35),steel=mat('#aebbc8',.85,.25),dark=mat('#263746',.65,.38),black=mat('#101820',.35,.45),gold=mat('#e5a72d',.7,.25),red=mat('#a94a3e',.4,.4),rubber=mat('#15191e',.1,.85);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),mat('#172638',.15,.9));floor.rotation.x=-Math.PI/2;floor.position.y=-.04;floor.receiveShadow=true;scene.add(floor);
+const grid=new THREE.GridHelper(20,40,'#31445b','#24364b');grid.position.y=-.025;scene.add(grid);
+const root=new THREE.Group();scene.add(root);const pickables=[];const partsData=[
+['Bed','বেড','মেশিনের প্রধান ভিত্তি। Headstock, Tailstock ও Carriage বেডের গাইডওয়ের ওপর চলাচল করে।'],
+['Headstock','হেডস্টক','বেডের বাম পাশে থাকে। এর ভেতরে স্পিন্ডল, বিয়ারিং ও গতি পরিবর্তনের গিয়ার ব্যবস্থা থাকে।'],
+['Spindle','স্পিন্ডল','মোটর থেকে পাওয়া ঘূর্ণন চাকের মাধ্যমে ওয়ার্কপিসে পৌঁছে দেয়।'],
+['Chuck','চাক','ওয়ার্কপিসকে শক্তভাবে ধরে ঘোরায়। সাধারণত 3-jaw বা 4-jaw chuck ব্যবহৃত হয়।'],
+['Chuck jaws','চাকের জ- / চোয়াল','চাকের চোয়ালগুলো ওয়ার্কপিসকে আঁকড়ে ধরে রাখে।'],
+['Workpiece','ওয়ার্কপিস','যে ধাতব বস্তুটি মেশিনে কাটা বা মেশিনিং করা হয়।'],
+['Tailstock','টেইলস্টক','লম্বা ওয়ার্কপিসের অপর প্রান্ত সাপোর্ট করে; ড্রিল ও রিমারও ধরা যায়।'],
+['Quill / Barrel','কুইল / ব্যারেল','টেইলস্টকের ভেতর থেকে সামনে-পেছনে বের হয় এবং টুলকে ধরে।'],
+['Tailstock handwheel','টেইলস্টক হ্যান্ডহুইল','কুইলকে সামনে-পেছনে সরানোর জন্য ব্যবহৃত হয়।'],
+['Carriage','ক্যারেজ','কাটিং টুলকে বেড বরাবর নির্দিষ্ট দিকে চালায়।'],
+['Saddle','স্যাডল','ক্যারেজের ভিত্তি; বেডের গাইডওয়ের ওপর বসে চলাচল করে।'],
+['Cross slide','ক্রস স্লাইড','কাটিং টুলকে ওয়ার্কপিসের অক্ষের আড়াআড়ি দিকে সরায়।'],
+['Compound rest','কম্পাউন্ড রেস্ট','কোণ করে বা ছোট নির্ভুল ফিডে কাটিং টুল চালাতে সাহায্য করে।'],
+['Tool post','টুল পোস্ট','কাটিং টুল বা টুল হোল্ডারকে নির্দিষ্ট অবস্থানে আটকে রাখে।'],
+['Cutting tool','কাটিং টুল','ওয়ার্কপিস থেকে ধাতু অপসারণ করে প্রয়োজনীয় আকার তৈরি করে।'],
+['Apron','এপ্রোন','ক্যারেজের সামনের অংশ; ফিড ও হাফ-নাটসহ নিয়ন্ত্রণ ব্যবস্থা থাকে।'],
+['Lead screw','লিড স্ক্রু','থ্রেড কাটার সময় নির্ভুলভাবে ক্যারেজ চালায়।'],
+['Feed rod','ফিড রড','সাধারণ টার্নিংয়ে স্বয়ংক্রিয় ফিড সরবরাহ করে।'],
+['Quick-change gearbox','কুইক-চেঞ্জ গিয়ারবক্স','থ্রেড পিচ ও ফিড রেট নির্বাচন করতে সাহায্য করে।'],
+['Feed selector','ফিড সিলেক্টর','প্রয়োজন অনুযায়ী ফিড বা থ্রেড সেটিং নির্বাচন করে।'],
+['Carriage handwheel','ক্যারেজ হ্যান্ডহুইল','ক্যারেজকে হাতে লম্বালম্বি সরায়।'],
+['Cross-slide handwheel','ক্রস স্লাইড হ্যান্ডহুইল','ক্রস স্লাইডকে হাতে আড়াআড়ি সরায়।'],
+['Compound handwheel','কম্পাউন্ড হ্যান্ডহুইল','কম্পাউন্ড রেস্টকে হাতে সরায়।'],
+['Bed ways','বেড ওয়েজ','ক্যারেজ ও টেইলস্টকের সঠিক অ্যালাইনমেন্ট বজায় রাখে।'],
+['Chip pan','চিপ প্যান','কাটিংয়ের সময় উৎপন্ন ধাতব চিপ ও কুল্যান্ট সংগ্রহ করে।'],
+['Legs / Stand','লেগ / স্ট্যান্ড','মেশিনের ওজন বহন করে এবং স্থিতিশীলতা দেয়।'],
+['Drive motor','ড্রাইভ মোটর','মেশিনের প্রধান চালিকা শক্তি সরবরাহ করে।'],
+['Belt guard','বেল্ট গার্ড','বেল্ট ও পুলির চলন্ত অংশ থেকে অপারেটরকে সুরক্ষা দেয়।'],
+['Coolant nozzle','কুল্যান্ট নোজল','কাটিং এলাকায় কুল্যান্ট পৌঁছে দেয়।'],
+['Splash guard','স্প্ল্যাশ গার্ড','চিপ ও কুল্যান্ট ছিটকে পড়া কমায়।'],
+['Emergency stop','ইমার্জেন্সি স্টপ','জরুরি অবস্থায় মেশিন দ্রুত বন্ধ করার সুইচ।'],
+['Spindle speed dial','স্পিন্ডল স্পিড ডায়াল','নির্বাচিত স্পিন্ডল গতি নির্দেশ বা নিয়ন্ত্রণ করে।'],
+['Half-nut lever','হাফ-নাট লিভার','লিড স্ক্রুর সঙ্গে ক্যারেজ যুক্ত বা বিচ্ছিন্ন করে।'],
+['Power feed lever','পাওয়ার ফিড লিভার','স্বয়ংক্রিয় লম্বালম্বি বা আড়াআড়ি ফিড চালু করে।'],
+['Back gear','ব্যাক গিয়ার','কম গতিতে বেশি টর্ক পাওয়ার গিয়ার ব্যবস্থা।']
+];
+function box(name,pos,size,material,parent=root){const g=new THREE.Group();g.position.set(...pos);const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size),material);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);parent.add(g);register(g,name);return g}
+function cyl(name,pos,r1,r2,len,axis,material,parent=root,segments=32){const g=new THREE.Group();g.position.set(...pos);const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,len,segments),material);if(axis==='x')mesh.rotation.z=Math.PI/2;if(axis==='z')mesh.rotation.x=Math.PI/2;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);parent.add(g);register(g,name);return g}
+function register(obj,name){obj.userData.part=name;pickables.push(obj);obj.traverse(o=>{if(o.isMesh)o.userData.part=name})}
+function wheel(name,pos,r,axis='x',material=steel){const g=cyl(name,pos,r,r,.09,axis,material);for(let i=0;i<8;i++){let a=i*Math.PI/4;let p=new THREE.Mesh(new THREE.BoxGeometry(.035,r*1.8,.035),material);p.position.set(Math.cos(a)*r*.5,Math.sin(a)*r*.5,0);g.add(p)}return g}
+function beam(name,a,b,thick,material){const mid=new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5),d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const mesh=new THREE.Mesh(new THREE.CylinderGeometry(thick,thick,d.length(),16),material);mesh.position.copy(mid);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());mesh.castShadow=true;root.add(mesh);register(mesh,name);return mesh}
+// Stand and chip tray
+box('Chip pan',[0,.95,0],[6.8,.16,1.9],dark);
+for(const x of [-2.8,2.8]){box('Legs / Stand',[x,.47,0],[.5,.9,1.45],blue2);box('Legs / Stand',[x,.12,0],[.8,.15,1.7],dark)}
+// bed
+box('Bed',[0,1.65,0],[6.9,.42,1.05],blue);box('Bed ways',[0,1.9,.32],[6.7,.09,.18],steel);box('Bed ways',[0,1.9,-.32],[6.7,.09,.18],steel);
+box('Bed ways',[0,1.92,0],[6.5,.06,.1],dark);
+// Headstock
+box('Headstock',[-2.65,2.42,0],[1.45,1.05,1.25],blue);box('Headstock',[-2.65,2.96,0],[1.35,.12,1.2],blue2);
+cyl('Spindle',[-1.85,2.48,0],.19,.19,.65,'x',steel);cyl('Chuck',[-1.42,2.48,0],.53,.53,.38,'x',dark);
+cyl('Chuck',[-1.21,2.48,0],.45,.45,.08,'x',steel);
+for(let i=0;i<3;i++){let a=i*2*Math.PI/3;let j=box('Chuck jaws',[-1.13,2.48+Math.sin(a)*.27,Math.cos(a)*.27],[.23,.14,.14],gold);j.rotation.x=a}
+cyl('Workpiece',[-.05,2.48,0],.17,.17,2.15,'x',mat('#c38a56',.75,.27));
+// gearbox front
+box('Quick-change gearbox',[-2.65,1.83,.68],[1.18,.65,.18],blue2);wheel('Feed selector',[-2.88,1.82,.82],.12,'z',gold);wheel('Feed selector',[-2.45,1.82,.82],.12,'z',steel);
+// tailstock
+box('Tailstock',[2.65,2.25,0],[1.2,.68,1.02],blue);cyl('Quill / Barrel',[2.02,2.35,0],.15,.15,.42,'x',steel);cyl('Tailstock handwheel',[3.32,2.28,0],.28,.28,.12,'x',dark);wheel('Tailstock handwheel',[3.42,2.28,0],.23,'x',steel);
+// carriage assembly below workpiece
+box('Saddle',[.15,1.98,0],[1.05,.2,1.15],blue2);box('Carriage',[.15,1.86,.12],[1.1,.18,1.12],blue);
+box('Cross slide',[.15,2.13,.15],[.78,.19,.72],steel);box('Compound rest',[.15,2.3,.16],[.55,.16,.52],blue2);
+box('Tool post',[.15,2.48,.16],[.32,.22,.32],gold);box('Cutting tool',[.15,2.61,.16],[.5,.07,.07],steel);
+box('Apron',[.15,1.45,.66],[.95,.58,.18],blue);wheel('Carriage handwheel',[-.48,1.53,.82],.25,'z',steel);wheel('Cross-slide handwheel',[.65,2.13,.55],.19,'z',gold);wheel('Compound handwheel',[.55,2.3,.42],.13,'z',steel);
+box('Half-nut lever',[.55,1.52,.78],[.06,.34,.06],gold);box('Power feed lever',[-.25,1.68,.78],[.07,.28,.07],gold);
+// lead screw and feed rod along front
+cyl('Lead screw',[0,1.34,.78],.055,.055,6.5,'x',steel,root,20);
+cyl('Feed rod',[0,1.12,.78],.045,.045,6.5,'x',gold,root,20);
+// motor and belt guard rear headstock
+box('Drive motor',[-2.85,.95,-.9],[.9,.65,.65],dark);cyl('Belt guard',[-2.55,2.5,-.78],.42,.42,.22,'z',blue2);
+box('Belt guard',[-2.55,2.5,-.78],[.82,.72,.18],blue2);
+box('Splash guard',[0,2.9,-.72],[3.4,.08,.12],steel);
+beam('Coolant nozzle',[.55,2.8,.65],[.3,2.68,.22],.035,steel);
+box('Emergency stop',[-2.8,2.15,.68],[.16,.16,.1],red);cyl('Spindle speed dial',[-2.3,2.16,.72],.11,.11,.08,'z',gold);
+cyl('Back gear',[-2.7,2.9,-.68],.22,.22,.12,'z',gold);
+for(let i=0;i<4;i++)box('Back gear',[-2.7+i*.12,2.9,-.68],[.04,.38,.13],steel);
+// decorative feet / small controls
+box('Feed selector',[1.05,1.72,.72],[.18,.18,.12],gold);
+const labels=partsData.map(p=>({en:p[0],bn:p[1],desc:p[2]}));
+let selected=null,lang='bn',wire=false;
+function selectPart(name){const d=labels.find(x=>x.en===name)||labels[0];selected=name;document.querySelector('#info').innerHTML='<div class="en">'+d.en+'</div><div class="bn">'+d.bn+'</div><p>'+d.desc+'</p>';document.querySelectorAll('.part').forEach(b=>b.classList.toggle('active',b.dataset.name===name));}
+const list=document.querySelector('#parts');function renderList(q=''){list.innerHTML='';const arr=labels.filter(d=>(d.en+' '+d.bn).toLowerCase().includes(q.toLowerCase()));document.querySelector('#count').textContent=arr.length+' / '+labels.length;arr.forEach(d=>{const b=document.createElement('button');b.className='part'+(selected===d.en?' active':'');b.dataset.name=d.en;b.innerHTML=d.en+'<small>'+d.bn+'</small>';b.onclick=()=>{selectPart(d.en);focusPart(d.en)};list.append(b)})}
+function focusPart(name){const o=pickables.find(x=>x.userData.part===name);if(o){const p=new THREE.Vector3();o.getWorldPosition(p);controls.target.lerp(p,.5)}}
+renderList();document.querySelector('#search').addEventListener('input',e=>renderList(e.target.value));
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerdown',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(pickables,true);if(hits.length){let o=hits[0].object;while(o&&!o.userData.part)o=o.parent;if(o?.userData.part)selectPart(o.userData.part)}});
+document.querySelector('#autoBtn').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.classList.toggle('active',controls.autoRotate)};
+document.querySelector('#wireBtn').onclick=e=>{wire=!wire;scene.traverse(o=>{if(o.isMesh&&o.material&&!['floor'].includes(o.name))o.material.wireframe=wire});e.currentTarget.classList.toggle('active',wire)};
+function reset(){camera.position.set(8,6.5,9);controls.target.set(0,1.3,0);controls.update()}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
+document.querySelector('#langBtn').onclick=()=>{lang=lang==='bn'?'en':'bn';document.querySelector('.hint').innerHTML='<b>3D MACHINE</b><br>'+(lang==='bn'?'মেশিনের যেকোনো অংশে ক্লিক করো':'Click any machine component')+'<br><span style="color:#8fa4bf">Drag: Orbit · Scroll: Zoom</span>';};
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}new ResizeObserver(resize).observe(stage);resize();
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
+</script></body></html>
