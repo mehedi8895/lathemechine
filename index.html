@@ -14,7 +14,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:16p
 #stage{position:absolute;inset:0}#stage canvas{display:block;width:100%;height:100%}
 .hint{position:absolute;left:18px;top:16px;background:#07101dcc;border:1px solid #34465f;padding:10px 13px;border-radius:10px;color:#c7d5e8;font-size:13px;pointer-events:none}
 .hint b{color:var(--gold)}.toolbar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;background:#07101dcc;padding:8px;border:1px solid #34465f;border-radius:12px}
-.side{background:#111c2e;border:1px solid var(--line);border-radius:16px;padding:17px;min-height:620px;display:flex;flex-direction:column;gap:14px}
+.workshop{max-width:1568px;margin:14px auto 0;padding:16px;border:1px solid #34465f;border-radius:14px;background:#111c2e}.workshop[hidden]{display:none}.workshop-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.status{padding:7px 12px;border-radius:20px;background:#263746;color:#cbd8e8;font-size:12px}.status.running{background:#164b35;color:#a8f0c9}.workshop-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-top:14px;align-items:end}.workshop-controls label{display:grid;gap:6px;color:#cbd8e8;font-size:12px}.workshop-controls select{min-width:0;width:100%;padding:10px;background:#0b1524;color:#fff;border:1px solid #30425b;border-radius:8px}.machine-buttons{display:flex;gap:7px;flex-wrap:wrap}.machine-buttons button{white-space:nowrap}.workshop-note{margin-top:12px;color:#b8c8dc;font-size:13px}.side{background:#111c2e;border:1px solid var(--line);border-radius:16px;padding:17px;min-height:620px;display:flex;flex-direction:column;gap:14px}
 h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{color:var(--muted);font-size:12px;line-height:1.6}
 .selected{border:1px solid #b78329;background:linear-gradient(135deg,#392b16,#1a2432);padding:15px;border-radius:12px;min-height:130px}
 .selected .en{font-size:12px;color:#f5c96e;letter-spacing:.8px;text-transform:uppercase}.selected .bn{font-size:22px;font-weight:800;margin:7px 0}.selected p{font-size:13px;color:#d1dbea;line-height:1.6;margin:0}
@@ -22,12 +22,12 @@ h1{font-size:19px;margin:0}h2{font-size:15px;margin:0;color:var(--gold)}.muted{c
 .parts{overflow:auto;max-height:calc(100vh - 430px);display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-right:3px}
 .part{font-size:12px;text-align:left;padding:9px;background:#0c1727;border:1px solid #263950;border-radius:8px;color:#dbe6f5}.part small{display:block;color:#91a5bf;margin-top:3px;font-size:10px}.part.active{border-color:var(--gold);background:#352a19}
 .footer{border-top:1px solid var(--line);padding-top:10px;color:#7f92ab;font-size:11px;line-height:1.6}
-@media(max-width:900px){main{grid-template-columns:1fr;padding:10px}.viewer{height:62vh;min-height:430px}.side{min-height:0}.parts{max-height:310px}header{padding:0 14px}.brand{font-size:14px}.actions button{padding:7px 9px;font-size:11px}}
+@media(max-width:900px){.workshop{margin:10px;padding:12px}.workshop-controls{grid-template-columns:1fr 1fr}.machine-buttons{grid-column:1/-1}.machine-buttons button{flex:1 1 42%}.workshop-head{align-items:flex-start}main{grid-template-columns:1fr;padding:10px}.viewer{height:62vh;min-height:430px}.side{min-height:0}.parts{max-height:310px}header{padding:0 14px}.brand{font-size:14px}.actions button{padding:7px 9px;font-size:11px}}
 </style>
 </head>
 <body>
-<header><div><div class="brand">⚙ <span>LATHE</span> LAB</div><div class="sub">Interactive 3D Machine Explorer · লেদ মেশিন পরিচিতি</div></div><div class="actions"><button id="langBtn">বাংলা / English</button><button id="resetBtn">⟲ Reset View</button></div></header>
-<main>
+<header><div><div class="brand">⚙ <span>LATHE</span> LAB</div><div class="sub">Interactive 3D Machine Explorer · লেদ মেশিন পরিচিতি</div></div><div class="actions"><button id="useMachineBtn" class="active">⚙ Use Lathe Machine</button><button id="langBtn">বাংলা / English</button><button id="resetBtn">⟲ Reset View</button></div></header>
+<section id="workshop" class="workshop" hidden><div class="workshop-head"><div><h2>USE LATHE MACHINE · মেশিন চালাও</h2><div class="muted">ওয়ার্কপিস, কাটিং এক্সারসাইজ ও চাক নিয়ন্ত্রণ করে অনুশীলন করো</div></div><span id="machineStatus" class="status">মেশিন বন্ধ</span></div><div class="workshop-controls"><label>Workpiece<select id="workpieceSelect"><option value="cylinder">Round bar · সিলিন্ডার</option><option value="step">Step turning · ধাপযুক্ত</option><option value="taper">Taper turning · কোনাকৃতি</option><option value="groove">Grooving · খাঁজ কাটা</option></select></label><label>Exercise<select id="exerciseSelect"><option value="facing">Facing · ফেসিং</option><option value="straight">Straight turning · সোজা টার্নিং</option><option value="taper">Taper turning · টেপার</option><option value="groove">Grooving · গ্রুভিং</option><option value="drill">Drilling · ড্রিলিং</option></select></label><div class="machine-buttons"><button id="startMachine">▶ Start</button><button id="stopMachine">■ Stop</button><button id="chuckBtn">🔓 Open Chuck</button><button id="fixAllBtn">↺ Fix All</button></div></div><div class="workshop-note" id="exerciseNote">Facing: ওয়ার্কপিসের সামনের পৃষ্ঠ সমান করার অনুশীলন।</div></section><main>
 <section class="viewer"><div id="stage"></div><div class="hint"><b>3D MACHINE</b><br>মেশিনের যেকোনো অংশে ক্লিক করো<br><span style="color:#8fa4bf">Drag: ঘোরাও · Scroll: Zoom</span></div><div class="toolbar"><button id="autoBtn" class="active">⟳ Auto rotate</button><button id="wireBtn">Wireframe</button><button id="homeBtn">⌂ Home</button></div></section>
 <aside class="side"><div><h1>Machine Components</h1><div class="muted">একটি অংশ নির্বাচন করো অথবা নিচের তালিকা থেকে ক্লিক করো।</div></div>
 <div class="selected" id="info"><div class="en">SELECT A COMPONENT</div><div class="bn">একটি অংশে ক্লিক করো</div><p>3D মডেলের যেকোনো অংশে ক্লিক করলে এখানে নাম ও কাজের বিবরণ দেখাবে।</p></div>
@@ -42,7 +42,7 @@ import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples
 const stage=document.querySelector('#stage'),scene=new THREE.Scene();scene.background=new THREE.Color('#e9edf0');
 const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(7.8,4.4,10.8);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.65,0);controls.enableDamping=true;controls.autoRotate=true;controls.autoRotateSpeed=.65;
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.65,0);controls.enableDamping=true;controls.autoRotate=false;controls.autoRotateSpeed=.65;
 scene.add(new THREE.HemisphereLight(0xffffff,0x707780,2.15));const key=new THREE.DirectionalLight(0xffffff,3.0);key.position.set(5,9,7);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0xdce7f2,1.35);fill.position.set(-6,4,-5);scene.add(fill);
 const mat=(c,m=0.35,r=.55)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});
 const blue=mat('#aeb4b8',.72,.34),blue2=mat('#858d93',.68,.38),steel=mat('#d5d9dc',.88,.22),dark=mat('#555d63',.72,.42),black=mat('#20262b',.38,.48),gold=mat('#d8a92d',.62,.3),red=mat('#bd342b',.35,.4),rubber=mat('#171b1f',.1,.85);
@@ -98,10 +98,10 @@ box('Bed',[0,1.65,0],[6.9,.42,1.05],dark);box('Bed ways',[0,1.9,.32],[6.7,.09,.1
 box('Bed ways',[0,1.92,0],[6.5,.06,.1],dark);
 // Headstock
 box('Headstock',[-2.65,2.42,0],[1.45,1.05,1.25],blue);box('Headstock',[-2.65,2.96,0],[1.35,.12,1.2],blue2);
-cyl('Spindle',[-1.85,2.48,0],.19,.19,.65,'x',steel);cyl('Chuck',[-1.42,2.48,0],.53,.53,.38,'x',dark);
-cyl('Chuck',[-1.21,2.48,0],.45,.45,.08,'x',steel);
-for(let i=0;i<3;i++){let a=i*2*Math.PI/3;let j=box('Chuck jaws',[-1.13,2.48+Math.sin(a)*.27,Math.cos(a)*.27],[.23,.14,.14],gold);j.rotation.x=a}
-cyl('Workpiece',[-.05,2.48,0],.17,.17,2.15,'x',mat('#c38a56',.75,.27));
+cyl('Spindle',[-1.85,2.48,0],.19,.19,.65,'x',steel);const chuckMain=cyl('Chuck',[-1.42,2.48,0],.53,.53,.38,'x',dark);
+const chuckFace=cyl('Chuck',[-1.21,2.48,0],.45,.45,.08,'x',steel);
+const chuckJaws=[];for(let i=0;i<3;i++){let a=i*2*Math.PI/3;let j=box('Chuck jaws',[-1.13,2.48+Math.sin(a)*.27,Math.cos(a)*.27],[.23,.14,.14],gold);j.rotation.x=a;chuckJaws.push({group:j,angle:a,baseY:2.48+Math.sin(a)*.27,baseZ:Math.cos(a)*.27})}
+const workpiece=cyl('Workpiece',[-.05,2.48,0],.17,.17,2.15,'x',mat('#c38a56',.75,.27));
 
 // European-style conventional lathe details: control fascia, handles, labels and cast-metal covers
 const fascia=box('Headstock',[-2.66,2.18,.645],[1.12,.55,.045],dark);
@@ -150,7 +150,7 @@ box('Tailstock',[2.65,2.25,0],[1.2,.68,1.02],blue);cyl('Quill / Barrel',[2.02,2.
 // carriage assembly below workpiece
 box('Saddle',[.15,1.98,0],[1.05,.2,1.15],blue2);box('Carriage',[.15,1.86,.12],[1.1,.18,1.12],blue);
 box('Cross slide',[.15,2.13,.15],[.78,.19,.72],steel);box('Compound rest',[.15,2.3,.16],[.55,.16,.52],blue2);
-box('Tool post',[.15,2.48,.16],[.32,.22,.32],gold);box('Cutting tool',[.15,2.61,.16],[.5,.07,.07],steel);
+box('Tool post',[.15,2.48,.16],[.32,.22,.32],gold);const cuttingTool=box('Cutting tool',[.15,2.61,.16],[.5,.07,.07],steel);
 box('Apron',[.15,1.45,.66],[.95,.58,.18],blue);wheel('Carriage handwheel',[-.48,1.53,.82],.25,'z',steel);wheel('Cross-slide handwheel',[.65,2.13,.55],.19,'z',gold);wheel('Compound handwheel',[.55,2.3,.42],.13,'z',steel);
 box('Half-nut lever',[.55,1.52,.78],[.06,.34,.06],gold);box('Power feed lever',[-.25,1.68,.78],[.07,.28,.07],gold);
 // lead screw and feed rod along front
@@ -173,10 +173,22 @@ const list=document.querySelector('#parts');function renderList(q=''){list.inner
 function focusPart(name){const o=pickables.find(x=>x.userData.part===name);if(o){const p=new THREE.Vector3();o.getWorldPosition(p);controls.target.lerp(p,.5)}}
 renderList();document.querySelector('#search').addEventListener('input',e=>renderList(e.target.value));
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerdown',e=>{const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(pickables,true);if(hits.length){let o=hits[0].object;while(o&&!o.userData.part)o=o.parent;if(o?.userData.part)selectPart(o.userData.part)}});
-document.querySelector('#autoBtn').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.classList.toggle('active',controls.autoRotate)};
+document.querySelector('#autoBtn').textContent='Manual rotate: drag';document.querySelector('#autoBtn').classList.remove('active');document.querySelector('#autoBtn').onclick=()=>{controls.autoRotate=!controls.autoRotate;document.querySelector('#autoBtn').classList.toggle('active',controls.autoRotate);document.querySelector('#autoBtn').textContent=controls.autoRotate?'Auto rotate: ON':'Manual rotate: drag'};
 document.querySelector('#wireBtn').onclick=e=>{wire=!wire;scene.traverse(o=>{if(o.isMesh&&o.material&&!['floor'].includes(o.name))o.material.wireframe=wire});e.currentTarget.classList.toggle('active',wire)};
 function reset(){camera.position.set(7.8,4.4,10.8);controls.target.set(0,1.65,0);controls.update()}document.querySelector('#resetBtn').onclick=reset;document.querySelector('#homeBtn').onclick=reset;
 document.querySelector('#langBtn').onclick=()=>{lang=lang==='bn'?'en':'bn';document.querySelector('.hint').innerHTML='<b>3D MACHINE</b><br>'+(lang==='bn'?'মেশিনের যেকোনো অংশে ক্লিক করো':'Click any machine component')+'<br><span style="color:#8fa4bf">Drag: Orbit · Scroll: Zoom</span>';};
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}new ResizeObserver(resize).observe(stage);resize();
-function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
+let machineRunning=false,chuckOpen=false,spindleAngle=0,toolHome=cuttingTool.position.clone(),workpieceType='cylinder',exerciseType='facing';
+const workpieceMaterial=mat('#c38a56',.75,.27);
+function setWorkpiece(type){workpieceType=type;workpiece.traverse(o=>{if(o.isMesh){o.geometry.dispose();let g;if(type==='step'){g=new THREE.LatheGeometry([new THREE.Vector2(0,-1.08),new THREE.Vector2(.17,-1.08),new THREE.Vector2(.17,-.35),new THREE.Vector2(.11,-.35),new THREE.Vector2(.11,.35),new THREE.Vector2(.17,.35),new THREE.Vector2(.17,1.08),new THREE.Vector2(0,1.08)],48);g.rotateZ(Math.PI/2)}else if(type==='taper'){g=new THREE.LatheGeometry([new THREE.Vector2(0,-1.08),new THREE.Vector2(.10,-1.08),new THREE.Vector2(.17,1.08),new THREE.Vector2(0,1.08)],48);g.rotateZ(Math.PI/2)}else if(type==='groove'){g=new THREE.LatheGeometry([new THREE.Vector2(0,-1.08),new THREE.Vector2(.17,-1.08),new THREE.Vector2(.17,-.18),new THREE.Vector2(.09,-.18),new THREE.Vector2(.09,.02),new THREE.Vector2(.17,.02),new THREE.Vector2(.17,1.08),new THREE.Vector2(0,1.08)],48);g.rotateZ(Math.PI/2)}else{g=new THREE.CylinderGeometry(.17,.17,2.15,48);g.rotateZ(Math.PI/2)}o.geometry=g;o.material=workpieceMaterial}})}
+function setChuck(open){chuckOpen=open;chuckJaws.forEach(j=>{const d=open?.18:0;j.group.position.y=j.baseY+Math.sin(j.angle)*d;j.group.position.z=j.baseZ+Math.cos(j.angle)*d});document.querySelector('#chuckBtn').textContent=open?'🔒 Close Chuck':'🔓 Open Chuck'}
+function setExercise(type){exerciseType=type;const poses={facing:[-.78,2.61,.16],straight:[.2,2.61,.16],taper:[.75,2.61,.16],groove:[-.15,2.61,.16],drill:[1.15,2.61,.16]};cuttingTool.position.set(...poses[type]);const notes={facing:'Facing: ওয়ার্কপিসের সামনের পৃষ্ঠ সমান করার অনুশীলন।',straight:'Straight turning: নির্দিষ্ট ব্যাসে সোজা সিলিন্ডার তৈরি করো।',taper:'Taper turning: ধীরে ধীরে ব্যাস কমিয়ে কোনাকৃতি তৈরি করো।',groove:'Grooving: ওয়ার্কপিসে সরু খাঁজ কাটার অনুশীলন।',drill:'Drilling: Tailstock দিক থেকে কেন্দ্র বরাবর ড্রিলিং অনুশীলন।'};document.querySelector('#exerciseNote').textContent=notes[type];}
+document.querySelector('#useMachineBtn').onclick=()=>{const p=document.querySelector('#workshop');p.hidden=!p.hidden;document.querySelector('#useMachineBtn').classList.toggle('active',!p.hidden);if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'nearest'})};
+document.querySelector('#startMachine').onclick=()=>{if(chuckOpen){document.querySelector('#machineStatus').textContent='আগে চাক বন্ধ করো';return}machineRunning=true;document.querySelector('#machineStatus').textContent='মেশিন চলছে';document.querySelector('#machineStatus').classList.add('running')};
+document.querySelector('#stopMachine').onclick=()=>{machineRunning=false;document.querySelector('#machineStatus').textContent='মেশিন বন্ধ';document.querySelector('#machineStatus').classList.remove('running')};
+document.querySelector('#chuckBtn').onclick=()=>{if(machineRunning){document.querySelector('#machineStatus').textContent='চাক খুলতে আগে Stop করো';return}setChuck(!chuckOpen)};
+document.querySelector('#fixAllBtn').onclick=()=>{machineRunning=false;setChuck(false);setWorkpiece('cylinder');document.querySelector('#workpieceSelect').value='cylinder';document.querySelector('#exerciseSelect').value='facing';setExercise('facing');cuttingTool.position.copy(toolHome);spindleAngle=0;chuckMain.rotation.x=0;chuckFace.rotation.x=0;workpiece.rotation.x=0;document.querySelector('#machineStatus').textContent='সব সেটিং ঠিক করা হয়েছে';document.querySelector('#machineStatus').classList.remove('running')};
+document.querySelector('#workpieceSelect').onchange=e=>setWorkpiece(e.target.value);
+document.querySelector('#exerciseSelect').onchange=e=>setExercise(e.target.value);
+function animate(){requestAnimationFrame(animate);if(machineRunning){spindleAngle+=.035;chuckMain.rotation.x=spindleAngle;chuckFace.rotation.x=spindleAngle;workpiece.rotation.x=spindleAngle}controls.update();renderer.render(scene,camera)}animate();
 </script></body></html>
